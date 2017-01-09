@@ -12,8 +12,7 @@ library(genderdata)
 library(tidyr)
 
 # read csv on SF salaries data with readr package set not provided to NA from start
-salary_data1 <- read_csv("c:/users/alex/desktop/R/exercise data/SF salaries/salaries.csv", 
-                         na=c("Not Provided"))
+salary_data1 <- read_csv("..../input/salaries.csv",na=c("Not Provided"))
 
 #check basic outline of data
 
@@ -465,31 +464,3 @@ apply(salary_data1, 2, max, na.rm=TRUE)
 #split EmployeeName in two columns FirstName and Last Name
 
 salary_data2 <- extract(salary_data1, EmployeeName , c("FirstName", "LastName"), "([^ ]+) (.*)")
-
-#checking distribution
-
-str(salary_data2)
-
-hist(salary_data1$BasePay)
-
-qplot(salary_data1$BasePay ,geom = "path", colour = "pink")
-
-plot(salary_data1$BasePay , salary_data1$Benefits)
-
-
-#checking correlation
-cor(salary_data3$BasePay , salary_data3$TotalPay) #high correlation(close to 1)
-
-
-ggplot(salary_data1, aes(salary_data1$BasePay , salary_data1$Benefits)) + geom_line()
-
-
-salary_data3 <- salary_data1[complete.cases(salary_data1$BasePay), ]
-
-
-sapply(dfr, function(y) sum(length(which(is.na(y))))) #ana column ta Na
-
-#df[df==""]=NA
-#dfr=read.csv("Salaries.csv",na.strings=c("Not provided","Not Provided","",NA))
-
-
