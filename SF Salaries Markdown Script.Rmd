@@ -1,0 +1,450 @@
+---
+title: "SF Salaries"
+output: html_document
+---
+
+Important note:
+
+all analysis here was based on the analysis of SF Salaries data set from users msjgriffiths and JustinDomingue
+
+#Loading of packages and libraries required
+
+```{r include=FALSE}
+library(plyr)
+library(Hmisc)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(car)
+```
+
+#Read File
+
+```{r}
+salary_data1 <- read.csv("../SF salaries/salaries.csv", 
+                         na=c("Not Provided"))
+```
+#About the Dataset
+
+One way to understand how a city government works is by looking at who it employs and how its employees are compensated. This data contains the names, job title, and compensation for San Francisco city employees on an annual basis from 2011 to 2014.
+                         
+#Checking the structure of data
+
+```{r}
+str(salary_data1)
+summary(salary_data1)
+describe(salary_data1)
+head(salary_data1)
+tail(salary_data1)
+glimpse(salary_data1)
+```
+
+#Cleaning the data
+
+In our dataset there are 3 columns that we are not needed for our analysis, and therefore will be removed. These columns are: id, Agency and Notes
+
+```{r}
+table(duplicated(salary_data1$Id))
+salary_data1 <- salary_data1 %>%
+  select(-Id, -Agency, -Notes)
+```
+
+#Getting a glimpse at some metrics of our data
+
+```{r}
+salary1BPmean <- mean(as.numeric(salary_data1$BasePay), na.rm = TRUE)
+salary1BPmedian <- median(as.numeric(salary_data1$BasePay), na.rm = TRUE)
+salary1OTPmean <- mean(as.numeric(salary_data1$OvertimePay), na.rm = TRUE)
+salary1OTPmedian <- median(as.numeric(salary_data1$OvertimePay), na.rm = TRUE)
+salary1Benmean <- mean(as.numeric(salary_data1$Benefits), na.rm = TRUE)
+salary1Benmedian <- median(as.numeric(salary_data1$Benefits), na.rm = TRUE)
+salary1TPmean <-  mean(as.numeric(salary_data1$TotalPay), na.rm = TRUE)
+salary1TPmedian <- median(as.numeric(salary_data1$TotalPay), na.rm = TRUE)
+salary1TPBmean <- mean(as.numeric(salary_data1$TotalPayBenefits), na.rm = TRUE)
+salary1TPBmedian <- median(as.numeric(salary_data1$TotalPayBenefits), na.rm = TRUE)
+```
+
+As printed from the console the results is as follows:
+
+* "66325.4488404877 is the mean of BasePay of our dataset"
+* "65007.45 is the median of BasePay of our dataset"
+* "66325.4488404877 is the mean of Overtime Pay of our dataset"
+* "65007.45 is the median of Overtime Pay of our dataset"
+* "66325.4488404877 is the mean of Benefits of our dataset"
+* "65007.45 is the median of Benefits of our dataset"
+* "66325.4488404877 is the mean of Total Pay of our dataset"
+* "65007.45 is the median of Total Pay of our dataset"
+* "66325.4488404877 is the mean of Total Pay Benefits of our dataset"
+* "65007.45 is the median of Total Pay Benefits of our dataset"
+
+
+After we got some basic numbers of our data we split the dataset into 4 smaller datasets according to the year.
+
+```{r}
+salary2011 <- salary_data1[which(salary_data1$Year==2011), ]
+salary2012 <- salary_data1[which(salary_data1$Year==2012), ]
+salary2013 <- salary_data1[which(salary_data1$Year==2013), ]
+salary2014 <- salary_data1[which(salary_data1$Year==2014), ]
+```
+
+Now we can compare each years key values to the values we got from the whole dataset to see if there is any significant change over the course of four years between 2011 and 2014.
+
+Again we are going to get the mean and median of our sample, only this time it will be specific for each year.
+
+For 2011:
+```{r}
+salary2011BPmean <- mean(as.numeric(salary2011$BasePay), na.rm = TRUE)
+salary2011BPmedian <- median(as.numeric(salary2011$BasePay), na.rm = TRUE)
+salary2011OTPmean <- mean(as.numeric(salary2011$OvertimePay), na.rm = TRUE)
+salary2011OTPmedian <- median(as.numeric(salary2011$OvertimePay), na.rm = TRUE)
+salary2011Benmean <- mean(as.numeric(salary2011$Benefits), na.rm = TRUE)
+salary2011Benmedian <- median(as.numeric(salary2011$Benefits), na.rm = TRUE)
+salary2011TPmean <-  mean(as.numeric(salary2011$TotalPay), na.rm = TRUE)
+salary2011TPmedian <- median(as.numeric(salary2011$TotalPay), na.rm = TRUE)
+salary2011TPBmean <- mean(as.numeric(salary2011$TotalPayBenefits), na.rm = TRUE)
+salary2011TPBmedian <- median(as.numeric(salary2011$TotalPayBenefits), na.rm = TRUE)
+```
+For 2012:
+```{r}
+salary2012BPmean <- mean(as.numeric(salary2012$BasePay), na.rm = TRUE)
+salary2012BPmedian <- median(as.numeric(salary2012$BasePay), na.rm = TRUE)
+salary2012OTPmean <- mean(as.numeric(salary2012$OvertimePay), na.rm = TRUE)
+salary2012OTPmedian <- median(as.numeric(salary2012$OvertimePay), na.rm = TRUE)
+salary2012Benmean <- mean(as.numeric(salary2012$Benefits), na.rm = TRUE)
+salary2012Benmedian <- median(as.numeric(salary2012$Benefits), na.rm = TRUE)
+salary2012TPmean <-  mean(as.numeric(salary2012$TotalPay), na.rm = TRUE)
+salary2012TPmedian <- median(as.numeric(salary2012$TotalPay), na.rm = TRUE)
+salary2012TPBmean <- mean(as.numeric(salary2012$TotalPayBenefits), na.rm = TRUE)
+salary2012TPBmedian <- median(as.numeric(salary2012$TotalPayBenefits), na.rm = TRUE)
+```
+For 2013:
+```{r}
+salary2013BPmean <- mean(as.numeric(salary2013$BasePay), na.rm = TRUE)
+salary2013BPmedian <- median(as.numeric(salary2013$BasePay), na.rm = TRUE)
+salary2013OTPmean <- mean(as.numeric(salary2013$OvertimePay), na.rm = TRUE)
+salary2013OTPmedian <- median(as.numeric(salary2013$OvertimePay), na.rm = TRUE)
+salary2013Benmean <- mean(as.numeric(salary2013$Benefits), na.rm = TRUE)
+salary2013Benmedian <- median(as.numeric(salary2013$Benefits), na.rm = TRUE)
+salary2013TPmean <-  mean(as.numeric(salary2013$TotalPay), na.rm = TRUE)
+salary2013TPmedian <- median(as.numeric(salary2013$TotalPay), na.rm = TRUE)
+salary2013TPBmean <- mean(as.numeric(salary2013$TotalPayBenefits), na.rm = TRUE)
+salary2013TPBmedian <- median(as.numeric(salary2013$TotalPayBenefits), na.rm = TRUE)
+```
+For 2014:
+```{r}
+salary2014BPmean <- mean(as.numeric(salary2014$BasePay), na.rm = TRUE)
+salary2014BPmedian <- median(as.numeric(salary2014$BasePay), na.rm = TRUE)
+salary2014OTPmean <- mean(as.numeric(salary2014$OvertimePay), na.rm = TRUE)
+salary2014OTPmedian <- median(as.numeric(salary2014$OvertimePay), na.rm = TRUE)
+salary2014Benmean <- mean(as.numeric(salary2014$Benefits), na.rm = TRUE)
+salary2014Benmedian <- median(as.numeric(salary2014$Benefits), na.rm = TRUE)
+salary2014TPmean <-  mean(as.numeric(salary2014$TotalPay), na.rm = TRUE)
+salary2014TPmedian <- median(as.numeric(salary2014$TotalPay), na.rm = TRUE)
+salary2014TPBmean <- mean(as.numeric(salary2014$TotalPayBenefits), na.rm = TRUE)
+salary2014TPBmedian <- median(as.numeric(salary2014$TotalPayBenefits), na.rm = TRUE)
+```
+
+And some plots of these metrics: 
+
+* BasePay Mean plot per year.
+```{r}
+plotBPmean <- c(salary2011BPmean, salary2012BPmean, salary2013BPmean, salary2014BPmean)
+barplot(plotBPmean, xlab = "Basepay Mean per year", ylab = "$" , main = "BarPlot of Basepay Mean", 
+        ylim = c(0, 67000), names.arg = c("2011" , "2012" , "2013", "2014"))
+```
+
+* Overtime Mean plot per year.
+```{r}
+plotOTPmean <- c(salary2011OTPmean, salary2012OTPmean , salary2013OTPmean , salary2014OTPmean)
+barplot(plotOTPmean, xlab = "Overtime Mean per year", ylab = "$" , main = "BarPlot of Overtime Mean",
+        ylim = c(0, 8000), names.arg = c("2011" , "2012" , "2013", "2014"))
+```
+* Plot of salary distribution over years.
+```{r}
+qplot(salary2011$TotalPay, geom="density" , fill = "TotalPay" , xlab = "Salary Per Year" , ylab = "Frequency")
+qplot(salary2012$TotalPay, geom="density" , fill = "TotalPay" , xlab = "Salary Per Year" , ylab = "Frequency")
+qplot(salary2013$TotalPay, geom="density" , fill = "TotalPay" , xlab = "Salary Per Year" , ylab = "Frequency")
+qplot(salary2014$TotalPay, geom="density" , fill = "TotalPay" , xlab = "Salary Per Year" , ylab = "Frequency")
+```
+
+##other useful metrics
+
+* 10 Most Frequent job titles for all our sample
+
+```{r}
+salary_data1 %>%
+  group_by(JobTitle) %>%
+  summarise(Frequency = n()) %>%
+  arrange(desc(Frequency)) %>%
+  head( salary_data1 , n = 10)
+```
+
+* for 2011
+
+```{r}
+salary2011 %>%
+  group_by(JobTitle) %>%
+  summarise(Frequency = n()) %>%
+  arrange(desc(Frequency)) %>%
+  head( salary_data1 , n = 10)
+```
+
+* for 2012
+
+```{r}
+salary2012 %>%
+  group_by(JobTitle) %>%
+  summarise(Frequency = n()) %>%
+  arrange(desc(Frequency)) %>%
+  head( salary_data1 , n = 10)
+```
+
+* for 2013
+
+```{r}
+salary2013 %>%
+  group_by(JobTitle) %>%
+  summarise(Frequency = n()) %>%
+  arrange(desc(Frequency)) %>%
+  head( salary_data1 , n = 10)
+```
+
+* for 2014
+
+```{r}
+salary2014 %>%
+  group_by(JobTitle) %>%
+  summarise(Frequency = n()) %>%
+  arrange(desc(Frequency)) %>%
+  head( salary_data1 , n = 10)
+```
+
+##Jobs that occur only once per year
+
+
+* For 2011
+
+```{r}
+salary2011 %>%
+  group_by(JobTitle) %>%
+  summarise(Frequency = n()) %>%
+  mutate(OccursOnce = Frequency == 1) %>%
+  group_by(OccursOnce) %>%
+  summarise(Total = n())
+```
+* For 2012
+
+```{r}
+salary2012 %>%
+  group_by(JobTitle) %>%
+  summarise(Frequency = n()) %>%
+  mutate(OccursOnce = Frequency == 1) %>%
+  group_by(OccursOnce) %>%
+  summarise(Total = n())
+```
+
+* For 2013
+
+```{r}
+salary2013 %>%
+  group_by(JobTitle) %>%
+  summarise(Frequency = n()) %>%
+  mutate(OccursOnce = Frequency == 1) %>%
+  group_by(OccursOnce) %>%
+  summarise(Total = n())
+```
+
+* For 2014
+
+```{r}
+salary2014 %>%
+  group_by(JobTitle) %>%
+  summarise(Frequency = n()) %>%
+  mutate(OccursOnce = Frequency == 1) %>%
+  group_by(OccursOnce) %>%
+  summarise(Total = n())
+```
+
+## Some pay analysis
+
+How many have a Total pay of 0?
+
+* For 2011
+
+```{r}
+salary2011  %>%
+  filter(TotalPay <= 0)
+```
+3 people in 2011
+
+* For 2012
+
+```{r}
+salary2012  %>%
+  filter(TotalPay <= 0) 
+```  
+25 people in 2012
+
+* For 2013
+
+```{r}
+salary2013  %>%
+  filter(TotalPay <=0) 
+```
+288 people in 2013
+
+* For 2014
+
+```{r}
+salary2014  %>%
+  filter(TotalPay <= 0) 
+```
+53 people in 2014
+
+
+How many have 0 total pay but receive benefits per year?
+
+*For 2011
+
+```{r}
+salary2011  %>%
+  filter(TotalPay <= 0 & TotalPayBenefits > 0) 
+```
+Noone in 2011
+
+* For 2012
+
+```{r}
+salary2012  %>%
+  filter(TotalPay <= 0 & TotalPayBenefits > 0) 
+```
+25 people in 2012
+
+* For 2013
+
+```{r}
+salary2013  %>%
+  filter(TotalPay <= 0 & TotalPayBenefits > 0) 
+```
+285 people in 2013
+
+* For 2014
+
+```{r}
+salary2014  %>%
+  filter(TotalPay <= 0 & TotalPayBenefits > 0)
+```
+25 people in 2014
+
+
+how many have no pay and no benefits per year?
+
+* For 2011
+```{r}
+salary2011  %>%
+  filter(TotalPay <= 0 & TotalPayBenefits == 0)
+```
+
+3 people in 2011
+
+* For 2012
+
+```{r}
+salary2012  %>%
+  filter(TotalPay <= 0 & TotalPayBenefits == 0) 
+```
+
+Noone in 2012
+
+* For 2013
+
+```{r}
+salary2013  %>%
+  filter(TotalPay <= 0 & TotalPayBenefits == 0) 
+```
+
+Noone in 2013
+
+* For 2014
+
+```{r}
+salary2014  %>%
+  filter(TotalPay <= 0 & TotalPayBenefits == 0)
+```
+
+27 in 2014
+
+
+# Counting the number of people that belong to different salary groups making them percentage and making a pie chart per year
+
+* 2011
+
+```{r}
+piechart20111 <- count(salary2011[which(salary2011$TotalPay > 0 & salary2011$TotalPay < 100), ])/36159 * 100
+piechart20112 <- count(salary2011[which(salary2011$TotalPay > 100 & salary2011$TotalPay < 5000), ])/36159 * 100
+piechart20113 <- count(salary2011[which(salary2011$TotalPay > 5000 & salary2011$TotalPay < 20000), ])/36159 * 100
+piechart20114 <- count(salary2011[which(salary2011$TotalPay > 20000 & salary2011$TotalPay < 100000), ])/36159 * 100
+piechart20115 <- count(salary2011[which(salary2011$TotalPay > 100000), ])/36159 * 100
+piechart2011 <- as.numeric(c(piechart20111 , piechart20112 , piechart20113 , piechart20114 , piechart20115))
+pie(piechart2011, labels = c("0.23% has salary between 0 and 100 $ per year", "7.61% has salary between 100 and 500 $ per year", 
+                             "10.92% has salary between 5000 and 20000 $ per year" , 
+                             "54.87% has salary between 20000 and 10000 $ per year"
+                             , "26.34% has salary 100000 or above $ per year"),  edges = 500, radius = 1 , 
+                             col = c("purple", "violetred1", "green3","cornsilk", "cyan"),
+                             main = "Pie Chart of Salary distribution for the Year 2011")
+```
+
+
+* 2012 
+
+```{r}
+piechart20121 <- count(salary2012[which(salary2012$TotalPay > 0 & salary2012$TotalPay < 100), ])/36766 * 100
+piechart20122 <- count(salary2012[which(salary2012$TotalPay > 100 & salary2012$TotalPay < 5000), ])/36766 * 100
+piechart20123 <- count(salary2012[which(salary2012$TotalPay > 5000 & salary2012$TotalPay < 20000), ])/36766 * 100
+piechart20124 <- count(salary2012[which(salary2012$TotalPay > 20000 & salary2012$TotalPay < 100000), ])/36766 * 100
+piechart20125 <- count(salary2012[which(salary2012$TotalPay > 100000), ])/36766 * 100
+piechart2012 <- as.numeric(c(piechart20121 , piechart20122 , piechart20123 , piechart20124 , piechart20125))
+pie(piechart2012, labels = c("0.33% has salary between 0 and 100 $ per year", "7.12% has salary between 100 and 500 $ per year", 
+                             "10.79% has salary between 5000 and 20000 $ per year" , 
+                             "54.48% has salary between 20000 and 10000 $ per year"
+                             , "27.20% has salary 100000 or above $ per year"),  edges = 500, radius = 1 , 
+    col = c("purple", "violetred1", "green3","cornsilk", "cyan"),
+    main = "Pie Chart of Salary distribution for the Year 2012")
+```
+
+* 2013
+
+```{r}
+piechart20131 <- count(salary2013[which(salary2013$TotalPay > 0 & salary2013$TotalPay < 100), ])/37606 * 100
+piechart20132 <- count(salary2013[which(salary2013$TotalPay > 100 & salary2013$TotalPay < 5000), ])/37606 * 100
+piechart20133 <- count(salary2013[which(salary2013$TotalPay > 5000 & salary2013$TotalPay < 20000), ])/37606 * 100
+piechart20134 <- count(salary2013[which(salary2013$TotalPay > 20000 & salary2013$TotalPay < 100000), ])/37606 * 100
+piechart20135 <- count(salary2013[which(salary2013$TotalPay > 100000), ])/37606 * 100
+piechart2013 <- as.numeric(c(piechart20131 , piechart20132 , piechart20133 , piechart20134 , piechart20135))
+pie(piechart2013, labels = c("0.22% has salary between 0 and 100 $ per year", "7.15% has salary between 100 and 500 $ per year", 
+                             "10.61% has salary between 5000 and 20000 $ per year" , 
+                             "51.02% has salary between 20000 and 10000 $ per year"
+                             , "30.20% has salary 100000 or above $ per year"),  edges = 500, radius = 1 , 
+    col = c("purple", "violetred1", "green3","cornsilk", "cyan"),
+    main = "Pie Chart of Salary distribution for the Year 2013")
+```
+
+* 2014
+
+```  {r}
+piechart20141 <- count(salary2013[which(salary2014$TotalPay > 0 & salary2014$TotalPay < 100), ])/38123 * 100
+piechart20142 <- count(salary2013[which(salary2014$TotalPay > 100 & salary2014$TotalPay < 5000), ])/38123 * 100
+piechart20143 <- count(salary2013[which(salary2014$TotalPay > 5000 & salary2014$TotalPay < 20000), ])/38123 * 100
+piechart20144 <- count(salary2013[which(salary2014$TotalPay > 20000 & salary2014$TotalPay < 100000), ])/38123 * 100
+piechart20145 <- count(salary2013[which(salary2014$TotalPay > 100000), ])/38123 * 100
+piechart2014 <- as.numeric(c(piechart20141 , piechart20142 , piechart20143 , piechart20144 , piechart20145))
+pie(piechart2014, labels = c("0.27% has salary between 0 and 100 $ per year", "7.61% has salary between 100 and 500 $ per year", 
+                             "11.51% has salary between 5000 and 20000 $ per year" , 
+                             "51.38% has salary between 20000 and 10000 $ per year"
+                             , "29.07% has salary 100000 or above $ per year"),  edges = 500, radius = 1 , 
+    col = c("purple", "violetred1", "green3","cornsilk", "cyan"),
+    main = "Pie Chart of Salary distribution for the Year 2014")
+```
+
+
+
